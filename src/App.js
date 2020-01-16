@@ -48,6 +48,17 @@ const ActionBtn = styled.button`
   font-size:1.3rem;
 `;
 
+const NewEntryInput = styled.input`
+  background: mistyrose;
+  font-size:1.2rem;
+  border: 2px solid black
+`;
+
+const capitalize = (input) => {
+  if (typeof input !== 'string') return ''
+  return input.charAt(0).toUpperCase() + input.slice(1)
+}
+
 function appReducer(state, action) {
   switch (action.type) {
     case 'reset': {
@@ -64,7 +75,7 @@ function appReducer(state, action) {
           ...state,
           todos: [{
             id: Date.now(),
-            text: state.text,
+            text: capitalize(state.text),
             completed: false,
           }, ...state.todos],
           todoCount: state.todoCount + 1,
@@ -122,6 +133,7 @@ const initialState = {
 const TodosApp = () => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const didRun = useRef(false);
+  const newToDoRef = useRef(null);
 
   useEffect(() => {
     if (!didRun.current) {
@@ -134,9 +146,11 @@ const TodosApp = () => {
   useEffect(
     () => {
       localStorage.setItem('data', JSON.stringify(state));
+      newToDoRef.current && newToDoRef.current.focus();
     },
     [state]
   );
+
 
   return (
     <Context.Provider value={dispatch}>
@@ -148,7 +162,8 @@ const TodosApp = () => {
             dispatch({ type: "add" });
           }}
         >
-          <input
+          <NewEntryInput
+            ref={newToDoRef}
             value={state.text}
             onChange={e =>
               dispatch({
@@ -158,7 +173,7 @@ const TodosApp = () => {
             }
           />
           </form>
-          <pre>{JSON.stringify(state.text)}</pre>
+          {/* <pre>{JSON.stringify(state.text)}</pre> */}
       <ButtonHolder>
       <ActionBtn onClick={() => dispatch({ type: 'add' })}>New Todo</ActionBtn>
       <ActionBtn onClick={() => dispatch({ type: 'deleteAll' })}>Clear all</ActionBtn>
